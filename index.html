@@ -1,0 +1,116 @@
+<?php
+// Eğer form gönderildiyse
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES['file'])) {
+    // Yükleme yapılacak klasör
+    $target_dir = "uploads/";
+
+    // Dosya yolunu belirleyelim
+    $target_file = $target_dir . basename($_FILES["file"]["name"]);
+    $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
+    
+    // Yalnızca resim dosyalarının yüklenmesini sağla
+    if (getimagesize($_FILES["file"]["tmp_name"]) !== false) {
+        // Dosya başarıyla yüklendi mi kontrol edelim
+        if (move_uploaded_file($_FILES["file"]["tmp_name"], $target_file)) {
+            $uploaded_image_url = $target_file;
+        } else {
+            $error_message = "Dosya yüklenirken bir hata oluştu!";
+        }
+    } else {
+        $error_message = "Yüklenen dosya bir resim değil!";
+    }
+}
+?>
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fotoğraf Yükleme ve Link Oluşturma</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f7f7f7;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        form {
+            margin: 20px 0;
+        }
+        input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            background-color: #f9f9f9;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .result a {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border-radius: 5px;
+            text-decoration: none;
+        }
+        .result a:hover {
+            background-color: #0056b3;
+        }
+        .error {
+            color: #ff0000;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Fotoğraf Yükleyin</h1>
+        <form action="" method="post" enctype="multipart/form-data">
+            <input type="file" name="file" id="file" accept="image/*" required>
+            <button type="submit">Fotoğrafı Yükle</button>
+        </form>
+
+        <div class="result">
+            <?php if (isset($uploaded_image_url)): ?>
+                <h3>Yükleme Başarılı!</h3>
+                <p>Fotoğrafınıza şu linkten erişebilirsiniz:</p>
+                <a href="<?php echo $uploaded_image_url; ?>" target="_blank"><?php echo $uploaded_image_url; ?></a>
+            <?php elseif (isset($error_message)): ?>
+                <p class="error"><?php echo $error_message; ?></p>
+            <?php endif; ?>
+        </div>
+    </div>
+</body>
+</html>
